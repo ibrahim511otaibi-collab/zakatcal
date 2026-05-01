@@ -1,3 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>حاسبة الزكاة الذكية - مركز الفروانية</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&display=swap");
+        :root { --primary-color: #097834; --secondary-color: #c7ac25; }
+        body { font-family: "Noto Sans Arabic", sans-serif; background-color: #f8fafc; color: #333; }
+        .text-primary { color: var(--primary-color); }
+        .bg-primary { background-color: var(--primary-color); }
+        .editable-price { border: 1px dashed var(--secondary-color); background: #fffdf2; text-align: center; border-radius: 8px; font-size: 13px; color: var(--primary-color); font-weight: bold; width: 90px; }
+        .label-style { display: block; font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--secondary-color); }
+        #soundToggleBtn { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+    <audio id="zakatNasheed" loop preload="auto">
+        <source src="https://github.com/ibrahim511otaibi-collab/zakatcal/raw/refs/heads/main/WhatsApp%20Audio%202026-04-29%20at%209.36.44%20AM.mpeg.mp3" type="audio/mpeg">
+    </audio>
+
+    <button id="soundToggleBtn" onclick="toggleSound()" class="fixed bottom-6 left-6 bg-white w-14 h-14 rounded-full shadow-2xl border border-gray-100 text-gray-400 hover:text-primary z-50 flex items-center justify-center hover:scale-110">
+        <i id="soundIcon" class="fas fa-volume-mute text-2xl"></i>
+    </button>
+
+    <div class="w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 my-8">
+        <div class="bg-primary p-8 text-white text-center">
+            <img src="https://i.ibb.co/r2LcLwmn/logo.png" class="w-20 mx-auto mb-4 bg-white p-2 rounded-2xl shadow-lg" />
+            <h1 class="text-3xl font-black mb-1">حاسبة الزكاة الشرعية</h1>
+            <p class="text-[#C7AC25] font-bold">جمعية إحياء التراث الإسلامي - مركز محافظة الفروانية</p>
+        </div>
+
+        <div class="p-6 md:p-12">
+            <p id="loading-prices" class="text-center text-gray-500 mb-8 text-sm italic">جارٍ فحص الأسعار...</p>
+            
+            <div class="bg-slate-50 p-6 rounded-3xl border border-gray-100 mb-8 shadow-inner">
+                <div class="flex justify-between items-center mb-4">
+                    <label class="label-style text-xl mb-0">إجمالي المال النقدي (د.ك):</label>
+                    <span id="money-zakat" class="text-sm font-bold text-green-700 bg-green-100 px-3 py-1 rounded-lg">المستحق: 0.000 د.ك</span>
+                </div>
+                <input type="number" id="money" oninput="updateLiveZakat()" class="w-full p-4 rounded-xl border border-gray-200 text-2xl font-bold" placeholder="0.000">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-3"><label class="label-style mb-0">ذهب عيار 24</label><span id="g24-zakat" class="text-xs font-bold text-green-700">المستحق: 0.000</span></div>
+                    <div class="flex items-center gap-3"><input type="number" id="gold24" oninput="updateLiveZakat()" class="flex-grow p-3 rounded-lg border border-gray-200" placeholder="الوزن"><input type="number" id="gold24-price" oninput="updateLiveZakat()" class="editable-price p-2" step="0.001"></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-3"><label class="label-style mb-0">ذهب عيار 21</label><span id="g21-zakat" class="text-xs font-bold text-green-700">المستحق: 0.000</span></div>
+                    <div class="flex items-center gap-3"><input type="number" id="gold21" oninput="updateLiveZakat()" class="flex-grow p-3 rounded-lg border border-gray-200" placeholder="الوزن"><input type="number" id="gold21-price" oninput="updateLiveZakat()" class="editable-price p-2" step="0.001"></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-3"><label class="label-style mb-0">ذهب عيار 18</label><span id="g18-zakat" class="text-xs font-bold text-green-700">المستحق: 0.000</span></div>
+                    <div class="flex items-center gap-3"><input type="number" id="gold18" oninput="updateLiveZakat()" class="flex-grow p-3 rounded-lg border border-gray-200" placeholder="الوزن"><input type="number" id="gold18-price" oninput="updateLiveZakat()" class="editable-price p-2" step="0.001"></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-3"><label class="label-style mb-0">الفضة</label><span id="silver-zakat" class="text-xs font-bold text-green-700">المستحق: 0.000</span></div>
+                    <div class="flex items-center gap-3"><input type="number" id="silver" oninput="updateLiveZakat()" class="flex-grow p-3 rounded-lg border border-gray-200" placeholder="الوزن"><input type="number" id="silver-price" oninput="updateLiveZakat()" class="editable-price p-2" step="0.001"></div>
+                </div>
+            </div>
+
+            <button onclick="calculateZakat()" class="w-full bg-primary text-white p-5 rounded-2xl text-xl font-black shadow-xl">احسب الزكاة الإجمالية</button>
+            <div id="result" class="mt-8"></div>
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('zakatNasheed');
+        const soundIcon = document.getElementById('soundIcon');
+        const soundBtn = document.getElementById('soundToggleBtn');
+        const STORAGE_KEY = "zakat_prices_cache";
+
+        function playAudio() {
+            audio.play().then(() => {
+                soundIcon.classList.replace('fa-volume-mute', 'fa-volume-up');
+                soundBtn.classList.add('text-primary', 'ring-2', 'ring-green-500');
+            }).catch(e => console.log("خطأ في التشغيل:", e));
+        }
+
+        function pauseAudio() {
+            audio.pause();
+            soundIcon.classList.replace('fa-volume-up', 'fa-volume-mute');
+            soundBtn.classList.remove('text-primary', 'ring-2', 'ring-green-500');
+        }
+
+        document.addEventListener('click', () => {
+            if (audio.paused) playAudio();
+        }, { once: true });
+
+        function toggleSound() {
+            if (audio.paused) { playAudio(); } else { pauseAudio(); }
+        }
+
+        // --- وظائف جلب الأسعار مع منطق الـ 24 ساعة ---
+        async function fetchMetalPrices() {
+            const loadingText = document.getElementById('loading-prices');
+            const today = new Date().toLocaleDateString('en-CA'); // صيغة YYYY-MM-DD لضمان دقة المقارنة عند 12 صباحاً
+
+            // التحقق من وجود بيانات مخزنة لنفس اليوم
+            const cached = localStorage.getItem(STORAGE_KEY);
+            if (cached) {
+                const data = JSON.parse(cached);
+                if (data.date === today) {
+                    applyPrices(data.prices);
+                    loadingText.innerHTML = `✅ الأسعار حسب آخر تحديث: ${data.date}`;
+                    return;
+                }
+            }
+
+            // إذا لم توجد بيانات أو التاريخ قديم، نقوم بالجلب من الـ API
+            try {
+                const headers = { "x-access-token": "goldapi-2podhqsmo5yvfh5-io", "Content-Type": "application/json" };
+                
+                const goldRes = await fetch('https://www.goldapi.io/api/XAU/KWD', { headers });
+                const goldData = await goldRes.json();
+                
+                const silverRes = await fetch('https://www.goldapi.io/api/XAG/KWD', { headers });
+                const silverData = await silverRes.json();
+
+                if(goldData.price && silverData.price) {
+                    const baseGold = goldData.price / 31.1035;
+                    const baseSilver = silverData.price / 31.1035;
+
+                    const prices = {
+                        g24: baseGold.toFixed(3),
+                        g21: (baseGold * 0.875).toFixed(3),
+                        g18: (baseGold * 0.75).toFixed(3),
+                        silver: baseSilver.toFixed(3)
+                    };
+
+                    // حفظ في الذاكرة المحلية
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: today, prices: prices }));
+                    
+                    applyPrices(prices);
+                    loadingText.innerHTML = `✅ الأسعار حسب آخر تحديث: ${today}`;
+                }
+            } catch (e) { 
+                loadingText.innerHTML = "⚠️ تعذر التحديث التلقائي، أدخل الأسعار يدوياً"; 
+            }
+        }
+
+        function applyPrices(p) {
+            document.getElementById('gold24-price').value = p.g24;
+            document.getElementById('gold21-price').value = p.g21;
+            document.getElementById('gold18-price').value = p.g18;
+            document.getElementById('silver-price').value = p.silver;
+            updateLiveZakat();
+        }
+
+        // --- الحسابات ---
+        function updateLiveZakat() {
+            const m = parseFloat(document.getElementById('money').value) || 0;
+            document.getElementById('money-zakat').innerText = `المستحق: ${(m * 0.025).toFixed(3)} د.ك`;
+
+            const g24w = parseFloat(document.getElementById('gold24').value) || 0;
+            const g24p = parseFloat(document.getElementById('gold24-price').value) || 0;
+            document.getElementById('g24-zakat').innerText = `المستحق: ${(g24w * g24p * 0.025).toFixed(3)}`;
+
+            const g21w = parseFloat(document.getElementById('gold21').value) || 0;
+            const g21p = parseFloat(document.getElementById('gold21-price').value) || 0;
+            document.getElementById('g21-zakat').innerText = `المستحق: ${(g21w * g21p * 0.025).toFixed(3)}`;
+
+            const g18w = parseFloat(document.getElementById('gold18').value) || 0;
+            const g18p = parseFloat(document.getElementById('gold18-price').value) || 0;
+            document.getElementById('g18-zakat').innerText = `المستحق: ${(g18w * g18p * 0.025).toFixed(3)}`;
+
+            const sw = parseFloat(document.getElementById('silver').value) || 0;
+            const sp = parseFloat(document.getElementById('silver-price').value) || 0;
             document.getElementById('silver-zakat').innerText = `المستحق: ${(sw * sp * 0.025).toFixed(3)}`;
         }
 
@@ -18,3 +193,4 @@
     </script>
 </body>
 </html>
+
